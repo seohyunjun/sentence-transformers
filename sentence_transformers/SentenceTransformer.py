@@ -729,22 +729,29 @@ class SentenceTransformer(nn.Sequential, FitMixin, PeftAdapterMixin):
         if precision and precision != "float32":
             all_embeddings = quantize_embeddings(all_embeddings, precision=precision)
 
+    
+        
         if convert_to_tensor:
-            if len(all_embeddings):
-                if isinstance(all_embeddings, np.ndarray):
-                    all_embeddings = torch.from_numpy(all_embeddings)
-                else:
-                    all_embeddings = torch.stack(all_embeddings)
-            else:
-                all_embeddings = torch.Tensor()
+            all_embeddings = torch.stack(all_embeddings)
         elif convert_to_numpy:
-            if not isinstance(all_embeddings, np.ndarray):
-                if all_embeddings and all_embeddings[0].dtype == torch.bfloat16:
-                    all_embeddings = np.asarray([emb.float().numpy() for emb in all_embeddings])
-                else:
-                    all_embeddings = np.asarray([emb.numpy() for emb in all_embeddings])
-        elif isinstance(all_embeddings, np.ndarray):
-            all_embeddings = [torch.from_numpy(embedding) for embedding in all_embeddings]
+            all_embeddings = np.asarray([emb.numpy() for emb in all_embeddings])
+
+        # if convert_to_tensor:
+        #     if len(all_embeddings):
+        #         if isinstance(all_embeddings, np.ndarray):
+        #             all_embeddings = torch.from_numpy(all_embeddings)
+        #         else:
+        #             all_embeddings = torch.stack(all_embeddings)
+        #     else:
+        #         all_embeddings = torch.Tensor()
+        # elif convert_to_numpy:
+        #     if not isinstance(all_embeddings, np.ndarray):
+        #         if all_embeddings and all_embeddings[0].dtype == torch.bfloat16:
+        #             all_embeddings = np.asarray([emb.float().numpy() for emb in all_embeddings])
+        #         else:
+        #             all_embeddings = np.asarray([emb.numpy() for emb in all_embeddings])
+        # elif isinstance(all_embeddings, np.ndarray):
+        #     all_embeddings = [torch.from_numpy(embedding) for embedding in all_embeddings]
 
         if input_was_string:
             all_embeddings = all_embeddings[0]
